@@ -407,6 +407,23 @@ mrss_clip() {
   echo "✅ Extracted $duration clip starting at $start_time → $output_path"
 }
 
+mrss_replace_audio() {
+  if [ $# -ne 2 ]; then
+    echo "Usage: mrss_replace_audio <video_file> <audio_file>"
+    echo "Example: mrss_replace_audio project_name.kdenlive.mp4 processed-audio/project_name.denoised.wav"
+    return 1
+  fi
+
+  local video_file="$1"
+  local audio_file="$2"
+  local output_file="${video_file%.*}.replaced_audio.mp4"
+
+  ffmpeg -i "$video_file" -i "$audio_file" \
+    -c:v copy -map 0:v:0 -map 1:a:0 -shortest "$output_file"
+
+  echo "✅ Created: $output_file (video with replaced audio)"
+}
+
 # if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
   # exec tmux
 # fi
