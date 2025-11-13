@@ -387,7 +387,7 @@ mrss_ss() {
   local output="screenshot_${time//:/-}.png"
 
   ffmpeg -ss "$time" -i "$input" -frames:v 1 "$output"
-  echo "Screenshot saved to $output"
+  echo "✅ Screenshot saved to $output"
 }
 
 mrss_clip() {
@@ -424,10 +424,6 @@ mrss_replace_audio() {
   echo "✅ Created: $output_file (video with replaced audio)"
 }
 
-# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-  # exec tmux
-# fi
-
 function nvim() {
   if [[ -d "$1" ]]; then
    pushd "$1" > /dev/null
@@ -437,6 +433,7 @@ function nvim() {
     env nvim --cmd ":e $1"
   fi
 }
+
 alias vim=nvim
 
 IP_MSI='192.168.200.199'
