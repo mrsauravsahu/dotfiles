@@ -85,8 +85,13 @@ export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/app/etc/xdg:/etc/xdg
 export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/home/mrsauravsahu/.var/app/org.wezfurlong.wezterm/data/flatpak/exports/share:/var/lib/flatpak/exports/share:/app/share:/usr/share:/usr/share/runtime/share:/run/host/user-share:/run/host/share:/var/lib/snapd/desktop
 
 # =====
+#TMUX
 
-# TMUX_SESSION_NAME="${PWD}"
-# tmux new-session -A -s "${TMUX_SESSION_NAME}" -c "${PWD}" -u -f "${XDG_CONFIG_HOME}/tmux/tmux.conf"
-tmux -u
+# if not in a Tmux session, start one
+if [[ -z "$TMUX" ]]; then 
+  exec tmux -u
+else
+  TMUX_SESSION_NAME="${PWD}"
+  tmux new-session -s "${TMUX_SESSION_NAME}" -c "${PWD}" -f "${XDG_CONFIG_HOME}/tmux/tmux.conf"
+fi
 
