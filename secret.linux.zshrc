@@ -1,4 +1,7 @@
+# vim: set filetype=sh :
+
 # ENV VARS
+export SHELL=/usr/bin/zsh
 export GTK_THEME='Yaru-dark'
 export TERM='xterm-256color'
 export KUBECONFIG='/home/mrsauravsahu/.kube/config'
@@ -46,9 +49,11 @@ shutdown(){
 
 # alias: vim to nvim
 function nvim() {
-  if [[ -d "$1" ]]; then
+  if [[ "$#" -eq 0 ]]; then 
+   env nvim .
+  elif [[ -d "$1" ]]; then
    pushd "$1" > /dev/null
-   env nvim
+   env nvim $1
    popd > /dev/null
   else
     env nvim --cmd ":e $1"
@@ -59,7 +64,28 @@ function nvim() {
 p='/home/mrsauravsahu/Code/payobills'
 
 # ====================================================================================================================================
-if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
-  exec tmux -u
-fi
+# if command -v tmux &> /dev/null && [ -n "$PS1" ] && [[ ! "$TERM" =~ screen ]] && [[ ! "$TERM" =~ tmux ]] && [ -z "$TMUX" ]; then
+#   exec tmux -u
+# fi
+
+# ====================================================================================================================================
+# XDG 
+
+export XDG_CONFIG_HOME='/home/mrsauravsahu'
+export XDG_SESSION_TYPE=x11
+export XDG_CACHE_HOME=/home/mrsauravsahu/.cache
+export XDG_SESSION_CLASS=user
+export XDG_MENU_PREFIX=gnome-
+export XDG_RUNTIME_DIR=/run/user/1000
+export XDG_CURRENT_DESKTOP=ubuntu:GNOME
+export XDG_CONFIG_HOME=/home/mrsauravsahu/.config
+export XDG_DATA_HOME=/home/mrsauravsahu/.data
+export XDG_SESSION_DESKTOP=ubuntu
+export XDG_CONFIG_DIRS=/etc/xdg/xdg-ubuntu:/app/etc/xdg:/etc/xdg
+export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/home/mrsauravsahu/.var/app/org.wezfurlong.wezterm/data/flatpak/exports/share:/var/lib/flatpak/exports/share:/app/share:/usr/share:/usr/share/runtime/share:/run/host/user-share:/run/host/share:/var/lib/snapd/desktop
+
+# =====
+
+TMUX_SESSION_NAME="${PWD}"
+eval tmux new-session -A -s "${TMUX_SESSION_NAME}" -c "${PWD}" -f "${XDG_CONFIG_HOME}/tmux/tmux.conf" zsh
 
