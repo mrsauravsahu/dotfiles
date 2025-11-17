@@ -86,6 +86,7 @@ export XDG_DATA_DIRS=/usr/share/ubuntu:/usr/share/gnome:/home/mrsauravsahu/.var/
 
 # =====
 
-TMUX_SESSION_NAME="${PWD}"
-eval tmux new-session -A -s "${TMUX_SESSION_NAME}" -c "${PWD}" -f "${XDG_CONFIG_HOME}/tmux/tmux.conf" zsh
+# TMUX_SESSION_NAME="${PWD}"
+# tmux new-session -A -s "${TMUX_SESSION_NAME}" -c "${PWD}" -u -f "${XDG_CONFIG_HOME}/tmux/tmux.conf"
+tmux -u
 
