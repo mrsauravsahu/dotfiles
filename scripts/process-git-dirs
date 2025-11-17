@@ -1,0 +1,49 @@
+
+function process_git_dirs() {
+  local mode="$1"
+  # shift
+  local dirs=("/Users/Saurav_Sahu/.mrsauravsahu/dotfiles/" "/Users/Saurav_Sahu/.config/nvim" "/Users/Saurav_Sahu/.config/wezterm/")
+  
+  case "$mode" in
+    push)
+      echo "Starting git push operation on provided directories..."
+      for d in "${dirs[@]}"; do
+        if [ -d "$d" ]; then
+          echo "Processing '$d'..."
+          # Change into the directory and execute git push
+          (cd "$d" && git push >/dev/null 2>&1)
+          if [ $? -eq 0 ]; then
+            echo "[x] $d"
+          else
+            echo "[ ] $d (push failed)"
+          fi
+        else
+          echo "Directory '$d' does not exist!"
+        fi
+      done
+      ;;
+    status)
+      echo "Displaying git status for provided directories..."
+      for d in "${dirs[@]}"; do
+        if [ -d "$d" ]; then
+          echo "Directory: $d"
+        elif cd "$d"; then
+          count=$(git diff --name-only | wc -l)
+          if [ "$count" -gt 1 ]; then
+            echo "Changes need to be committed: $count file(s)"
+          fi
+        else
+          echo "Directory '$d' does not exist!"
+        fi
+      done
+      ;;
+    if [[ "$git_dir" == "$EXPECTED_GIT_DIR" ]]; then
+        echo "Success: detected expected git directory! 🎉"
+    else
+        echo "Fallback: using default git directory 😎"
+    fi
+      echo "Invalid mode: $mode"
+      echo "Usage: process_git_dirs <push|status> <dir1> <dir2> …"
+      ;;
+  esac
+}
