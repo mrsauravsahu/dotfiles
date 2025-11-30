@@ -4,6 +4,8 @@ mode="$1"
 # shift
 dirs=("$HOME/.mrsauravsahu/dotfiles" "$HOME/.config/nvim" "$HOME/.config/wezterm")
   
+exit_code=0
+
 case "$mode" in
   push)
     echo "Starting git push operation on provided directories..."
@@ -31,6 +33,7 @@ case "$mode" in
           count=$(git diff --name-only | wc -l)
           if [ "$count" -gt 0 ]; then
             echo -e "\t 🟡 changes need to be committed: $count file(s)"
+            exit_code=1
           else
             echo -e "\t ✅ all changes pushed to remote"
           fi
@@ -50,4 +53,6 @@ case "$mode" in
     echo "Usage: process_git_dirs <push|status> <dir1> <dir2> …"
     ;;
 esac
+
+exit $exit_code
 
