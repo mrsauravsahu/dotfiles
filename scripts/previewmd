@@ -1,12 +1,8 @@
-previewmd() {
-    local input="$1"
-    # echo "input = ${input}"
-    # local tmp=$(mktemp)
-    # tmp=`mktemp -d`
-    # echo "${tmp}"
-    # 
-    local tmp=`pwd`
-    # cp "${input}" "${tmp}"/
-    docker run --rm -v "${tmp}":/data pandoc/latex:2.17-alpine "/data/${input}" \
-      -o "/data/${input}.pdf" > /dev/null 2>&1 && open "${tmp}/${input}.pdf"
-}
+#! /usr/bin/env bash
+input="$1"
+tmp=`pwd`
+docker run --rm -v "${tmp}":/data pandoc/latex:2.17-alpine "/data/${input}" \
+  -o "/data/${input}.pdf" > /dev/null 2>&1 && \
+  open "${tmp}/${input}.pdf" > /dev/null 2>&1 && \
+  echo "Cleaning up tmp preview pdf file" && \
+  rm -i "${tmp}/${input}.pdf"
