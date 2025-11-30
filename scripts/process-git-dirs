@@ -1,3 +1,4 @@
+# vim: set filetype=sh
 
 function process_git_dirs() {
   local mode="$1"
