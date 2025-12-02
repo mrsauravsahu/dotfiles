@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#! /usr/bin/env zsh
 input="$1"
 tmp=`pwd`
 docker run --rm -v "${tmp}":/data pandoc/latex:2.17-alpine "/data/${input}" \

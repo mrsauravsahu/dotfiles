@@ -1,4 +1,4 @@
-# vim: set filetype=sh
+#! /usr/bin/env zsh
 
 mode="$1"
 # shift

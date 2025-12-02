@@ -16,6 +16,9 @@ export PATH="${PATH}:/var/lib/flatpak/exports/share:/home/mrsauravsahu/.local/sh
 # my programs
 export PATH="${PATH}:/opt/mrsauravsahu/bin"
 
+# dotfiles scripts
+export PATH="$HOME/.mrsauravsahu/dotfiles/scripts/:$HOME/.mrsauravsahu/dotfiles/mrss/bin:${PATH}"
+
 # save the history
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
