@@ -12,3 +12,10 @@ Personal dotfiles and configuration scripts.
 
 **configs** - Shell and tmux configuration files.
 
+## Snippets
+
+### - fix_sound 
+```bash
+$ systemctl --user restart pulseaudio
+```
+
