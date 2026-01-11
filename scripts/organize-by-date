@@ -10,6 +10,9 @@ if [ ! -d "$dir" ]; then
   return 1
 fi
 
+# create an output directory
+mkdir "output" > /dev/null 2>&1
+
 for file in `find "${dir}" -maxdepth ${maxdepth} -type f`; do
   # Extract creation date from file using exiftool (for images) or stat (for other files)
   if [[ $(echo $file | tr 'A-Z' 'a-z') =~ \.(cr2|dng|jpg|jpeg|png|gif|heic|heif)$ ]]; then
@@ -29,7 +32,7 @@ for file in `find "${dir}" -maxdepth ${maxdepth} -type f`; do
   fi
 
   # Create directory for the date if it doesn't exist
-  dir_name="${created_date:0:4}/${created_date:5:2}/${created_date:8:2}"
+  dir_name="output/${created_date:0:4}/${created_date:5:2}/${created_date:8:2}"
   mkdir -p "${dir_name}"
   echo "[MOVE] to ${dir_name}"
 
