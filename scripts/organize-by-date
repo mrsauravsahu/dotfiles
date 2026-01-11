@@ -13,14 +13,17 @@ fi
 for file in `find "${dir}" -maxdepth ${maxdepth} -type f`; do
   # Extract creation date from file using exiftool (for images) or stat (for other files)
   if [[ $(echo $file | tr 'A-Z' 'a-z') =~ \.(cr2|dng|jpg|jpeg|png|gif|heic|heif)$ ]]; then
-    created_date=$(exiftool -s3 -CreateDate "$file")
+    created_date=$(exiftool -s3 -DateTimeOriginal "$file")
+    if [ -z "$created_date" ]; then
+      created_date=$(exiftool -s3 -CreateDate "$file")
+    fi
   else
     created_date="$(date --date="@$(stat -c "%Y" "$file")" "+%Y:%m:%d")"
   fi
   echo -n "[INFO] $(basename $file): ${created_date}"
 
-  # if year is less than 1970, skip the file
-  if [[ ${created_date:0:4} < 1970 ]]; then
+  # if year is less than 1970 or empty, skip the file
+  if [[ ${created_date:0:4} < 1970 ]] || [ -z "$created_date" ]; then
     echo " [SKIP] invalid date"
     continue
   fi
