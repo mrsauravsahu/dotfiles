@@ -8,14 +8,21 @@ Personal dotfiles and configuration scripts.
 
 **scripts** - Utility scripts including markdown preview and git repository management.
 
-**organizers** - File and date-based organization scripts.
-
 **configs** - Shell and tmux configuration files.
 
 ## Snippets
 
-### - fix_sound 
+### - fix sound 
 ```bash
 $ systemctl --user restart pulseaudio
+```
+
+### - remap alt and windows keys for keyboard
+```bash
+$ setxkbmap -option altwin:swap_alt_win
+
+# to revert all keymaps
+$ setxkbmap -option altwin:swap_alt_win
+
 ```
 
