@@ -12,16 +12,25 @@ case "$mode" in
       if [ -d "$d" ]; then
         echo "Processing '$d'..."
         prev_dir=$(pwd)
+
+        # Check dir
         if cd "$d"; then
+
+          # Check if it is a git directory
           if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
-              if git push; then
-                echo "✅ Pushed changes in '$d'"
-              else
-                echo "❌ Push failed in '$d'"
+            if [ $? -eq 0 ]; then
+
+              # Check if local commits have been pushed to remote
+              local commits=$(git rev-list --count HEAD~..HEAD)
+              if [ -n "$commits" ]; then
+                echo "🟡 Local commits haven't been pushed in '$d'"
               fi
-            else
-              echo "🟡 Uncommitted changes present in '$d'; skipping push"
+
+              # Check if local changes exist. And count number of files
+              local local_file_changes=$(git diff HEAD --name-only | wc -l | xarg)
+              if [ -n "$local_file_changes" ]; then
+                echo "🟡 Local file changes in '$d' files."
+              fi
             fi
           else
             echo "Directory '$d' is not a git repository"
