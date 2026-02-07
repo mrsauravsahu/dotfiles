@@ -60,13 +60,13 @@ shutdown(){
 # alias: vim to nvim
 function nvim() {
   if [[ "$#" -eq 0 ]]; then 
-   env nvim .
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim .
   elif [[ -d "$1" ]]; then
    pushd "$1" > /dev/null
-   env nvim $1
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim $1
    popd > /dev/null
   else
-    env nvim --cmd ":e $1"
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim --cmd ":e $1"
   fi
 }
 

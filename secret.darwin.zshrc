@@ -1,19 +1,21 @@
-// vim: ft=sh
+# // vim: ft=sh
 
 alias cat=bat
 alias ll='ls -l'
 alias l='ls'
 
+# export APPLE_SSH_ADD_BEHAVIOR=macos
+# ssh-add -K > /dev/null
+
 export PATH="${PATH}:/Users/Saurav_Sahu/.dotnet/tools"
 export PATH="${PATH}:/opt/homebrew/opt/ruby@3.2/bin"
 export PATH="${PATH}:/opt/homebrew/lib/ruby/gems/3.2.0/bin"
-
-alias pik='KUBECONFIG=~/.homelab-pi/config/pi.dory-char.ts.net.kubeconfig kubectl'
-alias pih='KUBECONFIG=~/.homelab-pi/config/pi.dory-char.ts.net.kubeconfig helm'
+export PATH="${PATH}:${CLI_CONFIG_ROOT}/current/path"
 
 alias http-server='npx files-upload-server /Users/Saurav_Sahu/Desktop/local-http-server/'
 # alias colima_start='colima start --mount-type virtiofs --cpu 12 --memory 20 --disk 256 --with-kubernetes'
 alias colima_start='colima start --mount-type virtiofs --cpu 12 --memory 20 --disk 256 --with-kubernetes --vm-type vz --vz-rosetta'
+alias vim=nvim
 
 . "$HOME/.cargo/env"
 
@@ -29,15 +31,8 @@ export PATH="$HOME/.asdf/shims:${PATH}"
 
 alias work="code --user-data-dir '/Users/Saurav_Sahu/.config/vscode-manager/work/data' --extensions-dir '/Users/Saurav_Sahu/.config/vscode-manager/work/extensions'"
 
-export KUBECONFIG=/Users/Saurav_Sahu/.homelab-pi/config/tab.KUBECONFIG
 export p=/Users/Saurav_Sahu/Downloads/mrsauravsahu/code/payobills
-
 export PATH="/Users/Saurav_Sahu/.cli-config/current/asdf:/Users/Saurav_Sahu/.asdf/installs/rust/1.79.0/bin:${PATH}"
-
-# export KUBECONFIG='/Users/Saurav_Sahu/.homelab-pi/config/192.168.0.184.kubeconfig'
-export KUBECONFIG='/Users/Saurav_Sahu/.homelab-pi/config/tab.kubeconfig'
-
-alias ai='code --user-data-dir "/Users/Saurav_Sahu/.config/vscode-manager/ai-dlc/data" --extensions-dir "/Users/Saurav_Sahu/.config/vscode-manager/ai-dlc/extensions" -n'
 
 # mrss
 
@@ -425,16 +420,28 @@ mrss_replace_audio() {
 }
 
 function nvim() {
-  if [[ -d "$1" ]]; then
+  if [[ "$#" -eq 0 ]]; then 
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim .
+  elif [[ -d "$1" ]]; then
    pushd "$1" > /dev/null
-   env nvim
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim $1
    popd > /dev/null
   else
-    env nvim --cmd ":e $1"
+   CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim --cmd ":e $1"
   fi
 }
 
-alias vim=nvim
+# function vim() {
+#   if [[ "$#" -eq 0 ]]; then 
+#    env nvim .
+#   elif [[ -d "$1" ]]; then
+#    pushd "$1" > /dev/null
+#    env nvim $1
+#    popd > /dev/null
+#   else
+#     env nvim --cmd ":e $1"
+#   fi
+# }
 
 IP_MSI='192.168.200.199'
 IP_PI='192.168.200.200'
