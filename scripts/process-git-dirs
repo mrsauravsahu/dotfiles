@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 #! /usr/bin/env zsh
 
 mode="$1"
@@ -5,6 +6,11 @@ mode="$1"
 dirs=("$HOME/.mrsauravsahu/dotfiles" "$HOME/.config/nvim" "$HOME/.config/wezterm")
   
 exit_code=0
+=======
+mode="$1"
+# shift
+dirs=("$HOME/.mrsauravsahu/dotfiles" "$HOME/.config/nvim" "$HOME/.config/wezterm")
+>>>>>>> Stashed changes
 
 case "$mode" in
   push)
@@ -12,12 +18,24 @@ case "$mode" in
     for d in "${dirs[@]}"; do
       if [ -d "$d" ]; then
         echo "Processing '$d'..."
-        # Change into the directory and execute git push
-        (cd "$d" && git push >/dev/null 2>&1)
-        if [ $? -eq 0 ]; then
-          echo "[x] $d"
+        prev_dir=$(pwd)
+        if cd "$d"; then
+          if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+              if git push; then
+                echo "✅ Pushed changes in '$d'"
+              else
+                echo "❌ Push failed in '$d'"
+              fi
+            else
+              echo "🟡 Uncommitted changes present in '$d'; skipping push"
+            fi
+          else
+            echo "Directory '$d' is not a git repository"
+          fi
+          cd "$prev_dir" >/dev/null 2>&1 || true
         else
-          echo "[ ] $d (push failed)"
+          echo "Failed to cd into '$d'"
         fi
       else
         echo "Directory '$d' does not exist!"
@@ -29,28 +47,66 @@ case "$mode" in
     for d in "${dirs[@]}"; do
       if [ -d "$d" ]; then
         echo "‣ $d"
+        prev_dir=$(pwd)
         if cd "$d"; then
+<<<<<<< Updated upstream
           count=$(git diff --name-only | wc -l)
           if [ "$count" -gt 0 ]; then
             echo -e "\t 🟡 changes need to be committed: $count file(s)"
             exit_code=1
+=======
+          if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            if [ -n "$(git status --porcelain)" ]; then
+              count=$(git status --porcelain | wc -l)
+              echo -e "\t 🟡 local changes need to be committed: $count file(s)"
+            else
+              echo -e "\t ✅ clean working tree"
+            fi
+>>>>>>> Stashed changes
           else
-            echo -e "\t ✅ all changes pushed to remote"
+            echo "\t Not a git repository"
           fi
+          cd "$prev_dir" >/dev/null 2>&1 || true
+        else
+          echo "Failed to cd into '$d'"
         fi
       else
-        echo "❌ '$d' does not exist!"
+        echo "Directory '$d' does not exist!"
       fi
     done
     ;;
-  # if [[ "$git_dir" == "$EXPECTED_GIT_DIR" ]]; then
-      # echo "Success: detected expected git directory! 🎉"
-  # else
-      # echo "Fallback: using default git directory 😎"
-  # fi
+  pull)
+    echo "Pulling latest changes for provided directories..."
+    for d in "${dirs[@]}"; do
+      if [ -d "$d" ]; then
+        echo "Processing '$d'..."
+        prev_dir=$(pwd)
+        if cd "$d"; then
+          if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+            if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+              if git pull; then
+                echo "✅ Pulled latest changes in '$d'"
+              else
+                echo "❌ Pull failed in '$d'"
+              fi
+            else
+              echo "🟡 Changes exist locally in '$d'; cannot pull"
+            fi
+          else
+            echo "Directory '$d' is not a git repository"
+          fi
+          cd "$prev_dir" >/dev/null 2>&1 || true
+        else
+          echo "Failed to cd into '$d'"
+        fi
+      else
+        echo "Directory '$d' does not exist!"
+      fi
+    done
+    ;;
   *)
     echo "Invalid mode: $mode"
-    echo "Usage: process_git_dirs <push|status> <dir1> <dir2> …"
+    echo "Usage: process_git_dirs <push|status|pull> <dir1> <dir2> …"
     ;;
 esac
 
