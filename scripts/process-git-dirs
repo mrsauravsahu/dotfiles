@@ -5,6 +5,8 @@ mode="$1"
 dirs=("$HOME/.mrsauravsahu/dotfiles" "$HOME/.config/nvim" "$HOME/.config/wezterm")
 exit_code=0
 
+prev_dir=$(pwd)
+
 case "$mode" in
   push)
     echo "Starting git push operation on provided directories..."
@@ -12,99 +14,71 @@ case "$mode" in
       if [ -d "$d" ]; then
         echo "Processing '$d'..."
         prev_dir=$(pwd)
-
-        # Check dir
         if cd "$d"; then
-
-          # Check if it is a git directory
           if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-            if [ $? -eq 0 ]; then
-
-              # Check if local commits have been pushed to remote
-              local commits=$(git rev-list --count HEAD~..HEAD)
-              if [ "$commits" -gt 0 ]; then
-                echo "\t 🟡 Local commits haven't been pushed in '$d'"
+            if git diff --quiet 2>/dev/null && git diff --cached --quiet 2>/dev/null; then
+              if git push; then
+                echo "✅ Pushed changes in '$d'"
+              else
+                echo "❌ Push failed in '$d'"
               fi
-
-              # Check if local changes exist. And count number of files
-              local local_file_changes=$(git diff HEAD --name-only | wc -l | xarg)
-              if [ -n "$local_file_changes" ]; then
-                echo "\t 🟡 Local file changes in '$d' files."
-              fi
+            else
+              echo "🟡 Uncommitted changes present in '$d'; skipping push"
             fi
           else
-            echo "\t Directory '$d' is not a git repository"
+            echo "Directory '$d' is not a git repository"
           fi
           cd "$prev_dir" >/dev/null 2>&1 || true
         else
-          echo "\t Failed to cd into '$d'"
+          echo "Failed to cd into '$d'"
         fi
       else
-        echo "\t Directory '$d' does not exist!"
+        echo "Directory '$d' does not exist!"
       fi
     done
     ;;
   status)
     echo "Displaying git status for provided directories..."
+
     for d in "${dirs[@]}"; do
       if [ -d "$d" ]; then
-        echo "\n\t ‣ $d"
-        prev_dir=$(pwd)
+        echo "\n‣ $d"
 
         # Check dir
         if cd "$d"; then
-
           # Check if it is a git directory
           if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             if [ $? -eq 0 ]; then
+              local changes_exist='no'
 
               # Check if local commits have been pushed to remote
               local commits=$(git rev-list --count @{u}..HEAD)
               if [ "$commits" -gt 0 ]; then
-                echo "\t 🟡 Local commits haven't been pushed in '$d'"
+                changes_exist='yes'
+                echo "🟡 Local commits haven't been pushed in '$d'"
               fi
 
               # Check if local changes exist. And count number of files
               local local_file_changes=$(git diff HEAD --name-only | wc -l | xargs)
               if [ "$local_file_changes" -gt 0 ]; then
-                echo "\t 🟡 Local file changes in '$d' files."
+                changes_exist='yes'
+                echo "🟡 Local file changes in '$d' files."
+              fi 
+
+              if [ "$changes_exist" = 'no' ]; then
+                echo "✅ clean working tree"
               fi
+            else
+              echo "Directory '$d' is not a git repository"
             fi
           else
-            echo "\t Directory '$d' is not a git repository"
+            echo "Failed to cd into '$d'"
           fi
-          cd "$prev_dir" >/dev/null 2>&1 || true
-        else
-          echo "\t Failed to cd into '$d'"
         fi
       else
-        echo "\t Directory '$d' does not exist!"
+        echo "Directory '$d' does not exist!"
       fi
     done
-
-    # for d in "${dirs[@]}"; do
-    #   if [ -d "$d" ]; then
-    #     echo "‣ $d"
-    #     prev_dir=$(pwd)
-    #     if cd "$d"; then
-    #       if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    #         if [ -n "$(git status --porcelain)" ]; then
-    #           count=$(git status --porcelain | wc -l)
-    #           echo -e "\t 🟡 local changes need to be committed: $count file(s)"
-    #         else
-    #           echo -e "\t ✅ clean working tree"
-    #         fi
-    #       else
-    #         echo "\t Not a git repository"
-    #       fi
-    #       cd "$prev_dir" >/dev/null 2>&1 || true
-    #     else
-    #       echo "Failed to cd into '$d'"
-    #     fi
-    #   else
-    #     echo "Directory '$d' does not exist!"
-    #   fi
-    # done
     ;;
   pull)
     echo "Pulling latest changes for provided directories..."
@@ -141,5 +115,8 @@ case "$mode" in
     ;;
 esac
 
+cd "$prev_dir"
+
 exit $exit_code
+# - The 'xarg' command is not a valid zsh command. It should be replaced with 'xargs'.
 
