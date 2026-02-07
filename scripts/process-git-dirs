@@ -22,7 +22,7 @@ case "$mode" in
 
               # Check if local commits have been pushed to remote
               local commits=$(git rev-list --count HEAD~..HEAD)
-              if [ -n "$commits" ]; then
+              if [ "$commits" -gt 0 ]; then
                 echo "🟡 Local commits haven't been pushed in '$d'"
               fi
 
