@@ -21,10 +21,10 @@ def format_ts(seconds: float) -> str:
     return f"{hours:02}:{minutes:02}:{secs:02},{millis:03}"
 
 # Define the path to your custom .pt model file and audio file
-custom_model_path = "/Users/Saurav_Sahu/.cache/whisper/large-v3-turbo.pt" # Replace with the actual path to your .pt file
+custom_model_path = "/Users/Saurav_Sahu/.cache/whisper/large-v3-turbo.pt"  # Replace with the actual path to your .pt file
 
 audio_file_path = sys.argv[1]
-OUTPUT_SRT=sys.argv[2]
+OUTPUT_SRT = sys.argv[2]
 
 # Initialize a model with the same architecture as your fine-tuned model
 # Example: If your .pt file is a 'small' English-only model
@@ -38,15 +38,12 @@ try:
     print(f"Successfully loaded weights from {custom_model_path}")
 except Exception as e:
     print(f"Error loading state_dict")
-    # If load_state_dict fails, you might need to adjust the loading logic 
+    # If load_state_dict fails, you might need to adjust the loading logic
     # or how the model was initially saved (e.g., if the entire model was saved)
     # You could try: model = torch.load(custom_model_path)
 
-
 # Perform transcription
-result = model.transcribe(audio_file_path,
-                          language=None,
-                          word_timestamps=True)
+result = model.transcribe(audio_file_path, language=None, word_timestamps=True)
 
 index = 1
 with open(OUTPUT_SRT, "w", encoding="utf-8") as f:
