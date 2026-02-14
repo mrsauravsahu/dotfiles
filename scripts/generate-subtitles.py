@@ -21,7 +21,7 @@ def format_ts(seconds: float) -> str:
     return f"{hours:02}:{minutes:02}:{secs:02},{millis:03}"
 
 # Define the path to your custom .pt model file and audio file
-custom_model_path = "/Users/Saurav_Sahu/.cache/whisper/large-v3-turbo.pt"  # Replace with the actual path to your .pt file
+custom_model_path = "${HOME}/.cache/whisper/large-v3-turbo.pt"  # Replace with the actual path to your .pt file
 
 audio_file_path = sys.argv[1]
 OUTPUT_SRT = sys.argv[2]
