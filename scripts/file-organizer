@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 mv *.MP4 mp4
 mkdir pictures > /dev/null || true 
 
