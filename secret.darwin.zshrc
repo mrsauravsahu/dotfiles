@@ -54,7 +54,8 @@ mrss_extract_audio() {
 }
 
 mrss_new() {
-  project_name="$1"
+  date_prefix="$(date +"%Y-%m-%d")"
+  project_name="${date_prefix}-$1"
   base_dir="$(pwd)/$project_name"
 
     if [ -z "$project_name" ]; then
