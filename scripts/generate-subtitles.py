@@ -1,6 +1,7 @@
 import whisper
 import torch
 import sys
+import json
 from whisper.utils import get_writer
 from datetime import timedelta
 
@@ -24,7 +25,7 @@ def format_ts(seconds: float) -> str:
 custom_model_path = "${HOME}/.cache/whisper/large-v3-turbo.pt"  # Replace with the actual path to your .pt file
 
 audio_file_path = sys.argv[1]
-OUTPUT_SRT = sys.argv[2]
+OUTPUT_JSON = sys.argv[2]
 
 # Initialize a model with the same architecture as your fine-tuned model
 # Example: If your .pt file is a 'small' English-only model
@@ -44,22 +45,47 @@ except Exception as e:
 
 # Perform transcription
 result = model.transcribe(audio_file_path, language=None, word_timestamps=True)
+# , append_punctuations=True)
+
 
 index = 1
-with open(OUTPUT_SRT, "w", encoding="utf-8") as f:
+
+with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+    subtitle_data = {"subtitles": []}
+    
     for segment in result["segments"]:
         for word in segment.get("words", []):
             start = format_ts(word["start"])
             end = format_ts(word["end"])
+
+
             text = word["word"].strip()
-            print(text)
-            print(word)
-            print("---")
-
-            f.write(f"{index}\n")
-            f.write(f"{start} --> {end}\n")
-            f.write(f"{text}\n\n")
-
+            # duration = float(end) - float(start)
+            
+            subtitle_data["subtitles"].append({
+                "index": index,
+                "start": start,
+                "end": end,
+                # "duration": duration,
+                "text": text
+            })
+            
             index += 1
+    
+    json.dump(subtitle_data, f, indent=2, ensure_ascii=False)
+# with open(OUTPUT_JSON, "w", encoding="utf-8") as f:
+#     for segment in result["segments"]:
+#         for word in segment.get("words", []):
+#             print('bruh', word)
+#             start = format_ts(word["start"])
+#             end = format_ts(word["end"])
+#             text = word["word"].strip()
+#             # print(word)
+#
+#             f.write(f"{index}\n")
+#             f.write(f"{start} --> {end}\n")
+#             f.write(f"{text}\n\n")
+#
+#             index += 1
 
 print("Finished.")
