@@ -1,3 +1,7 @@
+> Note: Parts of this repository are generated with GenAI
+
+> Use with caution, as the generated content may not be accurate or up-to-date. By using this script, you assume all risks and acknowledge that the output may not be suitable for production use.
+
 # @mrsauravsahu/dotfiles
 
 Personal dotfiles and configuration scripts.
