@@ -1,0 +1,16 @@
+#! /usr/bin/env zsh
+if [[ "$*" == *"-v"* || "$*" == *"--verbose"* ]]; then
+  set -x
+fi
+input="$1"
+tmp=`pwd`
+
+# echo "input ${input} and tmp ${tmp}"
+
+docker run --rm -v "${tmp}":/data -e input="${input}" paper:latest bash -c 'node pandoc-emoji-filter.js "/data/${input}" "/data/${input}.out.md" && pandoc --template=/app/template.tex "/data/${input}.out.md" -o "/data/${input}.pdf" --filter=emoji_filter.js && rm "/data/${input}.out.md"' && \
+  open "${tmp}/${input}.pdf" && \
+  echo "Cleaning up tmp preview pdf file" && \
+  rm -i "${tmp}/${input}.pdf"
+
+set +x
+
