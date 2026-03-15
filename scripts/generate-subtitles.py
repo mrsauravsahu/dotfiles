@@ -44,7 +44,7 @@ except Exception as e:
     # You could try: model = torch.load(custom_model_path)
 
 # Perform transcription
-result = model.transcribe(audio_file_path, language=None, word_timestamps=True)
+result = model.transcribe(audio_file_path, language=None, word_timestamps=True, fp16=False)
 # , append_punctuations=True)
 
 
