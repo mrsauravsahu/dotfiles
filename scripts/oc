@@ -1,2 +1,0 @@
-docker run -it --rm -v "$HOME/GenAI/friday/opencode":/root/.config/opencode -v "$(pwd):/opencode-working-dir" ghcr.io/anomalyco/opencode /opencode-working-dir --model ollama/qwen3.5:latest
-
