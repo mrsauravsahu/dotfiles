@@ -13,9 +13,9 @@ fi
 # create an output directory
 mkdir "output" > /dev/null 2>&1
 
-for file in `find "${dir}" -maxdepth ${maxdepth} -type f`; do
+while IFS= read -r -d '' file; do
   # Extract creation date from file using exiftool (for images) or stat (for other files)
-  if [[ $(echo $file | tr 'A-Z' 'a-z') =~ \.(cr2|dng|jpg|jpeg|png|gif|heic|heif)$ ]]; then
+  if [[ $(echo "$file" | tr 'A-Z' 'a-z') =~ \.(cr2|dng|jpg|jpeg|png|gif|heic|heif)$ ]]; then
     created_date=$(exiftool -s3 -DateTimeOriginal "$file")
     if [ -z "$created_date" ]; then
       created_date=$(exiftool -s3 -CreateDate "$file")
@@ -23,7 +23,7 @@ for file in `find "${dir}" -maxdepth ${maxdepth} -type f`; do
   else
     created_date="$(date --date="@$(stat -c "%Y" "$file")" "+%Y:%m:%d")"
   fi
-  echo -n "[INFO] $(basename $file): ${created_date}"
+  echo -n "[INFO] $(basename "$file"): ${created_date}"
 
   # if year is less than 1970 or empty, skip the file
   if [[ ${created_date:0:4} < 1970 ]] || [ -z "$created_date" ]; then
