@@ -21,7 +21,7 @@ while IFS= read -r -d '' file; do
       created_date=$(exiftool -s3 -CreateDate "$file")
     fi
   else
-    created_date="$(date -r "$(stat -f "%m" "$file")" "+%Y:%m:%d")"
+    created_date="$(date --date="@$(stat -c "%Y" "$file")" "+%Y:%m:%d")"
   fi
   echo -n "[INFO] $(basename "$file"): ${created_date}"
 
