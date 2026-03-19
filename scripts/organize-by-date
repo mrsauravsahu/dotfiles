@@ -7,7 +7,7 @@ files_organized=0
 # if dir does not exist, print error and exit
 if [ ! -d "$dir" ]; then
   echo "Error: This is not a standard 'import-location' based directory. Exiting."
-  return 1
+  exit 1
 fi
 
 # create an output directory
@@ -21,7 +21,7 @@ while IFS= read -r -d '' file; do
       created_date=$(exiftool -s3 -CreateDate "$file")
     fi
   else
-    created_date="$(date --date="@$(stat -c "%Y" "$file")" "+%Y:%m:%d")"
+    created_date="$(date -r "$(stat -f "%m" "$file")" "+%Y:%m:%d")"
   fi
   echo -n "[INFO] $(basename "$file"): ${created_date}"
 
@@ -40,6 +40,6 @@ while IFS= read -r -d '' file; do
   mv "$file" "${dir_name}/"
   files_organized=$((files_organized + 1))
 
-done
+done < <(find "$dir" -maxdepth "$maxdepth" -type f -print0)
 
 echo "[LOG] Discovered and organized ${files_organized} files."
