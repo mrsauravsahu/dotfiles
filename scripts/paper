@@ -7,10 +7,17 @@ tmp=`pwd`
 
 # echo "input ${input} and tmp ${tmp}"
 
-docker run --rm -v "${tmp}":/data -e input="${input}" paper:latest bash -c 'node pandoc-emoji-filter.js "/data/${input}" "/data/${input}.out.md" && pandoc --template=/app/template.tex "/data/${input}.out.md" -o "/data/${input}.pdf" --filter=emoji_filter.js && rm "/data/${input}.out.md"' && \
+echo Generating PDF && \
+  docker run --rm -v "${tmp}":/data -e input="${input}" paper:latest bash -c 'node pandoc-emoji-filter.js "/data/${input}" "/data/${input}.out.md" && pandoc --template=/app/template.tex "/data/${input}.out.md" -o "/data/${input}.pdf" --filter=emoji_filter.js && rm "/data/${input}.out.md"' > /dev/null 2>&1 && \
   open "${tmp}/${input}.pdf" && \
-  echo "Cleaning up tmp preview pdf file" && \
-  rm -i "${tmp}/${input}.pdf"
+  echo -n "Delete generated PDF file? [Y/n] " && \
+  read -sk1 reply && \
+  if [[ "$reply" == "Y" || "$reply" == "y" || "$reply" = $'\n' ]]; then
+    rm "${tmp}/${input}.pdf";
+    echo "PDF deleted."
+  else
+      echo "PDF preserved."
+  fi
 
 set +x
 
