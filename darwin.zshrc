@@ -431,16 +431,3 @@ function nvim() {
    CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim --cmd ":e $1"
   fi
 }
-
-# function vim() {
-#   if [[ "$#" -eq 0 ]]; then 
-#    env nvim .
-#   elif [[ -d "$1" ]]; then
-#    pushd "$1" > /dev/null
-#    env nvim $1
-#    popd > /dev/null
-#   else
-#     env nvim --cmd ":e $1"
-#   fi
-# }
-
