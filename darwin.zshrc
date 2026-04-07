@@ -431,3 +431,4 @@ function nvim() {
    CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim --cmd ":e $1"
   fi
 }
+
