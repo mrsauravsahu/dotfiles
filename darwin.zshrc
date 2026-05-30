@@ -407,7 +407,7 @@ mrss_replace_audio() {
   if [ $# -ne 2 ]; then
     echo "Usage: mrss_replace_audio <video_file> <audio_file>"
     echo "Example: mrss_replace_audio project_name.kdenlive.mp4 processed-audio/project_name.denoised.wav"
-    return 1
+    return 
   fi
 
   local video_file="$1"
@@ -421,9 +421,9 @@ mrss_replace_audio() {
 }
 
 function nvim() {
-  if [[ "$#" -eq 0 ]]; then 
+  if [ "$#" -eq 0 ]; then 
    CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim .
-  elif [[ -d "$1" ]]; then
+  elif [ -d "$1" ]; then
    pushd "$1" > /dev/null
    CLI_CONFIG_ROOT="${CLI_CONFIG_ROOT}" env nvim $1
    popd > /dev/null
