@@ -1,6 +1,6 @@
 #! /usr/bin/env zsh
 
-mode="$1"
+mode="${1:-help}"
 # shift
 dirs=("$HOME/.mrsauravsahu/dotfiles" "$HOME/.config/nvim" "$HOME/.config/wezterm")
 exit_code=0
@@ -55,18 +55,18 @@ case "$mode" in
               local commits=$(git rev-list --count @{u}..HEAD)
               if [ "$commits" -gt 0 ]; then
                 changes_exist='yes'
-                echo "🟡 Local commits haven't been pushed in '$d'"
+                echo "🟡 Local commits haven't been pushed"
               fi
 
               # Check if local changes exist. And count number of files
               local local_file_changes=$(git diff HEAD --name-only | wc -l | xargs)
               if [ "$local_file_changes" -gt 0 ]; then
                 changes_exist='yes'
-                echo "🟡 Local file changes in '$d' files."
+                echo "🟡 Local file changes"
               fi 
 
               if [ "$changes_exist" = 'no' ]; then
-                echo "✅ clean working tree"
+                echo "✅ Clean working tree"
               fi
             else
               echo "Directory '$d' is not a git repository"
@@ -110,8 +110,7 @@ case "$mode" in
     done
     ;;
   *)
-    echo "Invalid mode: $mode"
-    echo "Usage: process_git_dirs <push|status|pull> <dir1> <dir2> …"
+    echo "Usage: process_git_dirs [push|status|pull]"
     ;;
 esac
 
