@@ -40,8 +40,7 @@ $endfor$
   \fancyhf{}
   %\fancyfoot{}
   %\fancyhead[L]{\leftmark}
-$if(no-page-numbers)$
-$else$
+$if(show-page-numbers)$
   \fancyhead[R]{\thepage}
 $endif$
   \renewcommand{\headrulewidth}{0pt}
@@ -50,9 +49,7 @@ $endif$
 
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{\leftmark}
-$if(no-page-numbers)$
-$else$
+$if(show-page-numbers)$
 \fancyhead[R]{\thepage}
 $endif$
 \renewcommand{\headrulewidth}{0pt}
@@ -510,10 +507,12 @@ $if(has-frontmatter)$
 \frontmatter
 $endif$
 $if(title)$
+$if(show-title)$
 $if(beamer)$
 \frame{\titlepage}
 $else$
 \maketitle
+$endif$
 $endif$
 $if(abstract)$
 \begin{abstract}

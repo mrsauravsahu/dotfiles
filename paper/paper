@@ -15,10 +15,15 @@ PRESERVE=false
 
 for arg in "$@"; do
   case "$arg" in
+    --title=yes)
+      PANDOC_VARS="$PANDOC_VARS -V show-title=true"
+      ;;
+    --title=no)
+      ;;
     --pages=yes)
+      PANDOC_VARS="$PANDOC_VARS -V show-page-numbers=true"
       ;;
     --pages=no)
-      PANDOC_VARS="$PANDOC_VARS -V no-page-numbers=true"
       ;;
     -v|--verbose)
       VERBOSE=true
@@ -28,7 +33,7 @@ for arg in "$@"; do
       ;;
     -*)
       echo "Unknown flag: $arg" >&2
-      echo "Usage: paper <file.md> [--pages=yes|no] [-P] [-v]" >&2
+      echo "Usage: paper <file.md> [--title=yes|no] [--pages=yes|no] [-P] [-v]" >&2
       exit 1
       ;;
     *)
@@ -38,7 +43,7 @@ for arg in "$@"; do
 done
 
 if [ -z "$INPUT" ]; then
-  echo "Usage: paper <file.md> [--pages=yes|no] [-P] [-v]" >&2
+  echo "Usage: paper <file.md> [--title=yes|no] [--pages=yes|no] [-P] [-v]" >&2
   exit 1
 fi
 
