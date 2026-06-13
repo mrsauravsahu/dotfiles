@@ -15,9 +15,6 @@ PRESERVE=false
 
 for arg in "$@"; do
   case "$arg" in
-    --continuous)
-      PANDOC_VARS="$PANDOC_VARS -V continuous-pages=true"
-      ;;
     --pages=yes)
       ;;
     --pages=no)
@@ -31,7 +28,7 @@ for arg in "$@"; do
       ;;
     -*)
       echo "Unknown flag: $arg" >&2
-      echo "Usage: paper <file.md> [--continuous] [--pages=yes|no] [-P] [-v]" >&2
+      echo "Usage: paper <file.md> [--pages=yes|no] [-P] [-v]" >&2
       exit 1
       ;;
     *)
@@ -41,23 +38,25 @@ for arg in "$@"; do
 done
 
 if [ -z "$INPUT" ]; then
-  echo "Usage: paper <file.md> [--continuous] [--pages=yes|no] [-P] [-v]" >&2
+  echo "Usage: paper <file.md> [--pages=yes|no] [-P] [-v]" >&2
   exit 1
 fi
 
 $VERBOSE && set -x
 
+INPUT_DIR="$(cd "$(dirname "$INPUT")" && pwd)"
 INPUT_BASENAME="$(basename "$INPUT")"
-OUTPUT="${INPUT_BASENAME%.md}.pdf"
-OUTPUT_PATH="$(pwd)/$OUTPUT"
+OUTPUT_BASENAME="${INPUT_BASENAME%.md}.pdf"
+OUTPUT_PATH="$INPUT_DIR/$OUTPUT_BASENAME"
 
 echo "Generating PDF..."
 docker run --rm \
-  -v "$(pwd):/data" \
+  -v "$INPUT_DIR:/data" \
   -v "$SCRIPT_DIR:/paper" \
+  -e MERMAID_FILTER_FORMAT=pdf \
   paper:latest bash -c \
   "node /paper/pandoc-emoji-filter.js /data/$INPUT_BASENAME /data/$INPUT_BASENAME.out.md && \
-   pandoc /data/$INPUT_BASENAME.out.md -o /data/$OUTPUT \
+   pandoc /data/$INPUT_BASENAME.out.md -o /data/$OUTPUT_BASENAME \
      --template=/paper/template.tex \
      --filter=/paper/node_modules/.bin/mermaid-filter \
      --filter=/paper/emoji_filter.js \
