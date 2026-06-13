@@ -63,7 +63,7 @@ docker run --rm \
 open "$OUTPUT_PATH"
 
 echo -n "Delete generated PDF? [Y/n] "
-read -sk1 reply </dev/tty
+read -rsn1 reply </dev/tty
 echo
 if [[ "$reply" == "Y" || "$reply" == "y" || "$reply" == $'\n' ]]; then
   rm "$OUTPUT_PATH"

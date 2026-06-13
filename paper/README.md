@@ -1,3 +1,9 @@
+---
+Author: Sahu <mrsauravsahu@outloook.com>
+continuous-pages: true
+no-page-numbers: true
+---
+
 # paper
 
 A Markdown-to-PDF tool built on [pandoc](https://pandoc.org/), with support for emoji, Mermaid diagrams, and a custom LaTeX template.
