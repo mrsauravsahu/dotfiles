@@ -14,7 +14,7 @@ export PATH="${PATH}:${CLI_CONFIG_ROOT}/current/path"
 
 alias http-server='npx files-upload-server /Users/Saurav_Sahu/Desktop/local-http-server/'
 # alias colima_start='colima start --mount-type virtiofs --cpu 12 --memory 20 --disk 256 --with-kubernetes'
-alias colima_start='colima start --mount-type virtiofs --cpu 12 --memory 20 --disk 256 --with-kubernetes --vm-type vz --vz-rosetta'
+alias colima_start='colima start --mount-type virtiofs --cpu 12 --memory 20 --disk 256 --vm-type vz --vz-rosetta'
 alias vim=nvim
 
 . "$HOME/.cargo/env"
