@@ -2,6 +2,7 @@
 
 # ENV VARS
 export SHELL=/usr/bin/zsh
+export GDK_SCALE=2
 export GTK_THEME='Yaru-dark'
 export TERM='xterm-256color'
 export KUBECONFIG='/home/mrsauravsahu/.kube/config'
