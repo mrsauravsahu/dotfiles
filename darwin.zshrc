@@ -8,6 +8,7 @@ alias l='ls'
 # ssh-add -K > /dev/null
 
 export PATH="${PATH}:/Users/Saurav_Sahu/.dotnet/tools"
+export PATH="${PATH}:/opt/homebrew/bin"
 export PATH="${PATH}:/opt/homebrew/opt/ruby@3.2/bin"
 export PATH="${PATH}:/opt/homebrew/lib/ruby/gems/3.2.0/bin"
 export PATH="${PATH}:${CLI_CONFIG_ROOT}/current/path"
