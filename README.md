@@ -14,6 +14,8 @@ Personal dotfiles and configuration scripts.
 
 **configs** - Shell and tmux configuration files.
 
+**docs** - Knowledge base, including the [terminal setup](docs/terminal.md).
+
 ## Snippets
 
 ### - fix sound 
