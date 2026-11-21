@@ -27,3 +27,7 @@ printf '\033]8;;https://example.com/%s\033\\wrapped link %s\033]8;;\033\\\n' "$(
 `Hls` should show a value instead of `[missing]`, and clicking any row of the output should open the same URL.
 
 **Limit:** this only helps programs that emit OSC 8. A plain-text URL still depends on WezTerm's `hyperlink_rules`, which can't rejoin rows that an app hard-wrapped or that sit in a tmux split.
+
+## Terminal mode (kmscon)
+
+kmscon runs on the VTs instead of getty (`autovt@.service` points at `kmsconvt@.service`; config in `/etc/kmscon/kmscon.conf`). gdm is disabled at boot, so the machine starts in kmscon. Switch between it and GNOME, and pick its display, with [termmode](../apps/termmode/README.md).

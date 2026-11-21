@@ -19,6 +19,8 @@ export PATH="${PATH}:/opt/mrsauravsahu/bin"
 
 # dotfiles scripts
 export PATH="$HOME/.mrsauravsahu/dotfiles/scripts/:$HOME/.mrsauravsahu/dotfiles/mrss/bin:${PATH}"
+# dotfiles apps: each apps/<name>/ holds its executable
+for app in $HOME/.mrsauravsahu/dotfiles/apps/*(N/); do export PATH="$app:$PATH"; done
 
 # save the history
 HISTFILE=~/.zsh_history

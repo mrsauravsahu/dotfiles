@@ -1,0 +1,159 @@
+#!/usr/bin/env bash
+# Switch between the GNOME UI (gdm) and full-screen kmscon terminal mode.
+#   termmode on          stop gdm (ends the GUI session) and jump to kmscon
+#   termmode on --full   also stop every leftover GNOME/Wayland session, user service and process
+#   termmode off         start gdm and return to the graphical login
+#   termmode status      show which mode is active and anything GNOME/Wayland still running
+#   termmode ls --displays|-d  list connected displays and which one kmscon uses
+#   termmode config --display <name|all>  pick kmscon's display (e.g. HDMI-A-1); 'all' uses every display
+#
+# kmscon mirrors one console on every display and sizes it to the smallest, so a 4K screen next to
+# a 1440p one only gets a 1440p-sized grid. Picking a display forces the others off (DRM sysfs
+# status) while in terminal mode; 'termmode off' turns them back on before gdm starts.
+set -uo pipefail
+
+KMS_TTY="${KMS_TTY:-1}"
+DISPLAY_FILE="${XDG_CONFIG_HOME:-$HOME/.config}/termmode/display"
+# KMS_OUTPUT=<name> overrides the saved choice for one run
+KMS_OUTPUT="${KMS_OUTPUT:-$(cat "$DISPLAY_FILE" 2>/dev/null)}"
+# process names are truncated to 15 chars, hence gnome-session-b / xdg-desktop-por
+GNOME_PROCS='gnome-shell|gnome-session-b.*|gnome-session-c.*|Xwayland|Xorg|gsd-.*|mutter.*|gnome-.*-daemon|evolution-.*|xdg-desktop-por.*|ibus-.*|at-spi.*'
+
+run(){ echo "+ $*"; "$@"; }
+
+graphical_sessions(){
+  loginctl list-sessions --no-legend 2>/dev/null | awk '{print $1}' | while read -r s; do
+    t=$(loginctl show-session "$s" -p Type --value 2>/dev/null)
+    if [[ "$t" == wayland || "$t" == x11 ]]; then echo "$s"; fi
+  done
+}
+
+# connected outputs, e.g. "HDMI-A-1 3840x2160"
+connected_outputs(){
+  for c in /sys/class/drm/card*-*; do
+    [[ "$(cat "$c/status" 2>/dev/null)" == connected ]] || continue
+    echo "${c##*/card[0-9]-} $(head -1 "$c/modes" 2>/dev/null)"
+  done
+}
+
+# outputs termmode forced off, with their mode ("DP-2 2560x1440"); a forced-off output looks
+# unplugged in sysfs. Runtime dir, since the force is gone after a reboot.
+OFF_FILE="${XDG_RUNTIME_DIR:-/tmp}/termmode-off"
+
+# EDIDs of outputs, saved while connected: a forced-off output's sysfs edid is empty, but ddcutil
+# needs it to find the monitor
+EDID_DIR="${DISPLAY_FILE%/*}/edid"
+
+# monitor power over DDC/CI (VCP D6: 1 on, 4 standby); skipped if ddcutil isn't installed
+ddc_power(){
+  local edid
+  edid=$(cat "$EDID_DIR/$1" 2>/dev/null)
+  if [[ -z "$edid" ]] || ! command -v ddcutil >/dev/null; then return 0; fi
+  sudo modprobe i2c-dev
+  echo "+ $1 ddc power $2"
+  sudo ddcutil --noverify --edid "$edid" setvcp D6 "$2" >/dev/null 2>&1 || echo "termmode: ddcutil couldn't set $1 power" >&2
+}
+
+# writing off/detect to an output's sysfs status sets its force state and re-probes it, so the
+# change sends the hotplug event kmscon listens for; 'detect' gives the kernel back control.
+# kmscon stops drawing on a forced-off output but leaves its last frame up, so it's also put to
+# sleep over DDC/CI, and woken before it's handed back.
+set_force(){
+  local name state edid was mode off_list=""
+  mkdir -p "$EDID_DIR"
+  for c in /sys/class/drm/card*-*; do
+    name="${c##*/card[0-9]-}"
+    was=$(cat "$c/status")
+    edid=$(od -An -tx1 -v -N128 "$c/edid" 2>/dev/null | tr -d ' \n')
+    if [[ -n "$edid" ]]; then echo "$edid" > "$EDID_DIR/$name"; fi
+    if [[ "$1" == restore || -z "$KMS_OUTPUT" || "$KMS_OUTPUT" == all || "$name" == "$KMS_OUTPUT" ]]; then
+      state=detect
+    else
+      state=off
+    fi
+    # a disconnected output is either unplugged or one termmode turned off earlier
+    if [[ "$was" == disconnected ]] && ! grep -q "^$name " "$OFF_FILE" 2>/dev/null; then
+      echo "+ $name $state"
+      echo "$state" | sudo tee "$c/status" >/dev/null
+      continue
+    fi
+    if [[ "$state" == detect && "$was" == disconnected ]]; then ddc_power "$name" 01; fi
+    if [[ "$state" == off ]]; then
+      mode=$(head -1 "$c/modes" 2>/dev/null)
+      if [[ -z "$mode" ]]; then mode=$(awk -v n="$name" '$1 == n {print $2}' "$OFF_FILE" 2>/dev/null); fi
+      off_list+="$name $mode"$'\n'
+    fi
+    echo "+ $name $state"
+    echo "$state" | sudo tee "$c/status" >/dev/null
+    if [[ "$state" == off ]]; then ddc_power "$name" 04; fi
+  done
+  printf '%s' "$off_list" > "$OFF_FILE"
+}
+
+apply_display(){
+  if [[ -n "$KMS_OUTPUT" && "$KMS_OUTPUT" != all && ! -e "$(ls -d /sys/class/drm/card*-"$KMS_OUTPUT" 2>/dev/null | head -1)" ]]; then
+    echo "termmode: no display named '$KMS_OUTPUT'; see 'termmode ls -d'" >&2
+    return 1
+  fi
+  set_force apply
+}
+
+full_stop(){
+  for s in $(graphical_sessions); do run sudo loginctl terminate-session "$s"; done
+  run systemctl --user stop graphical-session.target 'app-gnome*.slice' 'org.gnome.*.service' \
+    'xdg-desktop-portal*.service' xdg-document-portal.service xdg-permission-store.service
+  if pkill -u "$USER" -x "$GNOME_PROCS"; then echo "+ killed leftover GNOME processes"; fi
+  sudo pkill -x 'Xwayland|Xorg' || true
+}
+
+case "${1:-}" in
+  on)
+    run sudo systemctl start "kmsconvt@tty${KMS_TTY}.service" || exit 1
+    run sudo chvt "${KMS_TTY}"
+    run sudo systemctl stop gdm
+    if [[ "${2:-}" == --full ]]; then full_stop; fi
+    apply_display
+    ;;
+  off)
+    set_force restore
+    run sudo systemctl start gdm
+    ;;
+  ls)
+    if [[ "${2:-}" != --displays && "${2:-}" != -d ]]; then
+      echo "Usage: termmode ls --displays|-d" >&2
+      exit 1
+    fi
+    { connected_outputs; sed 's/$/ (off)/' "$OFF_FILE" 2>/dev/null; } | while read -r name mode; do
+      if [[ "$name" == "$KMS_OUTPUT" ]]; then mark='*'; else mark=' '; fi
+      echo "$mark $name $mode"
+    done
+    echo "kmscon display: ${KMS_OUTPUT:-all} (saved in $DISPLAY_FILE)"
+    ;;
+  config)
+    if [[ "${2:-}" != --display || -z "${3:-}" ]]; then
+      echo "Usage: termmode config --display <name|all>  (names: termmode ls -d)" >&2
+      exit 1
+    fi
+    KMS_OUTPUT="$3"
+    mkdir -p "${DISPLAY_FILE%/*}"
+    echo "$KMS_OUTPUT" > "$DISPLAY_FILE"
+    echo "kmscon display: $KMS_OUTPUT"
+    if [[ "$(systemctl is-active gdm 2>/dev/null)" != active ]]; then apply_display || exit 1; fi
+    ;;
+  status)
+    gdm=$(systemctl is-active gdm 2>/dev/null)
+    if [[ "$gdm" == active ]]; then echo "mode:     ui"; else echo "mode:     terminal"; fi
+    echo "gdm:      ${gdm:-unknown}"
+    echo "vt:       $(cat /sys/class/tty/tty0/active 2>/dev/null || echo unknown)"
+    echo "display:  ${KMS_OUTPUT:-all}"
+    sessions=$(graphical_sessions | tr '\n' ' ')
+    echo "sessions: ${sessions:-none} (wayland/x11)"
+    left=$(pgrep -l -x "$GNOME_PROCS" | awk '{print $2}' | sort -u | tr '\n' ' ')
+    echo "leftover: ${left:-none}"
+    ;;
+  *)
+    echo "Usage: termmode {on [--full]|off|status|ls --displays|config --display <name|all>}" >&2
+    exit 1
+    ;;
+esac
+exit 0
