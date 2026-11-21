@@ -10,6 +10,8 @@ Personal dotfiles and configuration scripts.
 
 **mrss** - Custom shell functions and utilities for media processing and tools configuration.
 
+**apps** - Self-contained tools, one directory each with its own README: [termmode](apps/termmode/README.md) (switch between GNOME and a full-screen kmscon terminal).
+
 **scripts** - Utility scripts including markdown preview and git repository management.
 
 **configs** - Shell and tmux configuration files.
@@ -31,4 +33,3 @@ $ setxkbmap -option altwin:swap_alt_win
 $ setxkbmap -option altwin:swap_alt_win
 
 ```
-
